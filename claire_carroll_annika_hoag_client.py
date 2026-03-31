@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-"""COM315ARENA client skeleton.
-
-Usage: python3 example_client.py <host> <port> <name>
-
-This connects to the server but the networking is incomplete.
-Your job is to make it work.
-"""
 
 import json
 import socket
@@ -29,16 +21,14 @@ def main():
 
     # TODO: Read the WELCOME response and parse the JSON.
     welcome_response = b''
-    
-    while True:
-        # Make sure we read the entire request 
-        welcome_response = sock.recv(1024)
-        while b']}' not in welcome_response:
-            welcome_response = welcome_response + sock.recv(1024)
-        print(welcome_response.decode())
-            
-        
 
+    welcome_response = sock.recv(1024)
+    print("Initial welcome response: ", welcome_response.decode())
+    while b']}' not in welcome_response:
+        # print("Welcome response: ", welcome_response)
+        welcome_response = welcome_response + sock.recv(1024)
+    print(welcome_response.decode())
+           
 
     # TODO: In a loop, read data from the socket and process messages.
     #
