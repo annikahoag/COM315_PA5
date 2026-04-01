@@ -24,10 +24,10 @@ def main():
 
     welcome_response = sock.recv(1024)
     print("Initial welcome response: ", welcome_response.decode())
-    while b']}' not in welcome_response:
-        # print("Welcome response: ", welcome_response)
-        welcome_response = welcome_response + sock.recv(1024)
-    print(welcome_response.decode())
+    # while b']}' not in welcome_response:
+    #     # print("Welcome response: ", welcome_response)
+    #     welcome_response = welcome_response + sock.recv(1024)
+    # print(welcome_response.decode())
            
 
     # TODO: In a loop, read data from the socket and process messages.
