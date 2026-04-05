@@ -29,36 +29,92 @@ def main():
     map = data["map"]
     walls = data["walls"]
 
-    print("ID", id)
-    print("Position", position)
-    print("Map", map)
-    print("Walls", walls)
+    # print("ID", id)
+    # print("Position", position)
+    # print("Map", map)
+    # print("Walls", walls)
 
     # In a loop, read data from the socket and process messages.
     while True:
+
+
         game_state = b''
         gs_data = ''
         while b'\n' not in game_state:
             game_state = game_state + sock.recv(1024)
-        print("Game State: ", game_state)
+        #print("Game State: ", game_state)
 
-        gs_data = json.loads(game_state.decode().split(" ", 1)[1])
-        tick = gs_data["tick"]
-        me = gs_data["you"]
-        players = gs_data["players"]
-        resources = gs_data["resources"]
-        projectiles = gs_data["projectiles"]
+        gs_messages = game_state.split(b'\n')
 
-        print("Tick ", tick)
-        print("Me ", me)
-        print("Players", players)
-        print("Resources", resources)
-        print("Projectiles", projectiles)
+        for message in gs_messages:
+            if not message.strip():
+                continue
 
+        cmmnd = message.decode().split(" ", 1)
+        command = cmmnd[0]
 
-        #command = decide(game_state.decode())
-        #if command:
-            #sock.sendall((command + "\n").encode())
+        if command == "GAMESTATE":
+            gs_data = json.loads(command[1])
+            tick = gs_data["tick"]
+            me = gs_data["you"]
+            players = gs_data["players"]
+            resources = gs_data["resources"]
+            projectiles = gs_data["projectiles"]
+
+            action = decide(gs_data)
+            print ("Action ", action)
+            if action:
+                sock.sendall((action + "\n").encode())
+        elif command == "HIT":
+            print("You have been hit")
+        elif command == "DEATH":
+            print("You have been killed")
+        elif command == "KILL":
+            print("You have killed another player")
+        elif command == "RESPAWN":
+            sock.sendall(message)
+            print("You have respawned")
+        elif command == "ERROR":
+            print("Something went wrong...")
+        elif command == "CHAT":
+            print("You have a new message!")
+
+        # gs_data = json.loads(game_state.decode().splitlines()[0].split(" ", 1)[1])
+        # tick = gs_data["tick"]
+        # me = gs_data["you"]
+        # players = gs_data["players"]
+        # resources = gs_data["resources"]
+        # projectiles = gs_data["projectiles"]
+
+        # print("Tick ", tick)
+        # print("Me ", me)
+        # print("Players", players)
+        # print("Resources", resources)
+        # print("Projectiles", projectiles)
+
+        # print("Game State", gs_data, "\n")
+
+        # command = decide(gs_data)
+        # if command:
+        #     sock.sendall((command + "\n").encode())
+
+        # for message in gs_messages:
+        #     if b'HIT' in message:
+        #         print("You have been Hit")
+        #     if b'DEATH' in message:
+        #         print("You have been killed")
+        #     if b'KILL' in message:
+        #         print("You have killed another player")
+        #     if b'RESPAWN' in message:
+        #         sock.sendall(message.encode())
+        #         print("You have respawned")
+        #     if b'ERROR' in message:
+        #         print("Something went wrong...")
+        #     if b'CHAT' in message:
+        #         print("You have a new message!")
+
+            
+
 
 
     # Remember: TCP is a byte stream. A single recv() call may return
