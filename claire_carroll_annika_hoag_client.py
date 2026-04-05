@@ -19,14 +19,19 @@ def main():
     sock.sendall(f"JOIN {name}\n".encode())
 
 
-    # TODO: Read the WELCOME response and parse the JSON.
-    welcome_response = b''
-
+    # Read the WELCOME response and parse the JSON.
     welcome_response = sock.recv(1024)
-    print("Initial welcome response: ", welcome_response.decode())
-           
-    # TODO: In a loop, read data from the socket and process messages.
-    #
+    # print("Initial welcome response: ", welcome_response.decode())
+
+
+    # In a loop, read data from the socket and process messages.
+    while True:
+        game_state = sock.recv(1024)
+        command = decide(game_state.decode())
+        if command:
+            sock.sendall((command + "\n").encode())
+
+
     # Remember: TCP is a byte stream. A single recv() call may return
     # multiple messages, or only part of one. You need to handle this.
     #
