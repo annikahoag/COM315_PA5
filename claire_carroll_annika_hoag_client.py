@@ -37,24 +37,22 @@ def main():
     # In a loop, read data from the socket and process messages.
     while True:
 
-
         game_state = b''
         gs_data = ''
         while b'\n' not in game_state:
             game_state = game_state + sock.recv(1024)
         #print("Game State: ", game_state)
 
-        gs_messages = game_state.split(b'\n')
+        # for message in gs_messages:
+        #     if not message.strip():
+        #         continue
 
-        for message in gs_messages:
-            if not message.strip():
-                continue
+        cmmnd = game_state.decode().strip().split("\n", 2)
+        command = cmmnd
 
-        cmmnd = message.decode().split(" ", 1)
-        command = cmmnd[0]
-
-        if command == "GAMESTATE":
-            gs_data = json.loads(command[1])
+        if "GAMESTATE" in command:
+            gs_data = json.loads(command[2])
+            print(command[2])
             tick = gs_data["tick"]
             me = gs_data["you"]
             players = gs_data["players"]
@@ -65,19 +63,21 @@ def main():
             print ("Action ", action)
             if action:
                 sock.sendall((action + "\n").encode())
-        elif command == "HIT":
+        elif "HIT" in command:
             print("You have been hit")
-        elif command == "DEATH":
+        elif "DEATH" in command:
             print("You have been killed")
-        elif command == "KILL":
+        elif "KILL" in command:
             print("You have killed another player")
-        elif command == "RESPAWN":
-            sock.sendall(message)
+        elif "RESPAWN" in command:
+            sock.sendall(command)
             print("You have respawned")
-        elif command == "ERROR":
+        elif "ERROR" in command:
             print("Something went wrong...")
-        elif command == "CHAT":
+        elif "CHAT" in command:
             print("You have a new message!")
+        else:
+            print("Command ", command)
 
         # gs_data = json.loads(game_state.decode().splitlines()[0].split(" ", 1)[1])
         # tick = gs_data["tick"]
