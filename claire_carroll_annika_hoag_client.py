@@ -20,16 +20,45 @@ def main():
 
 
     # Read the WELCOME response and parse the JSON.
-    welcome_response = sock.recv(1024)
+    welcome_response = sock.recv(1024).decode()
     # print("Initial welcome response: ", welcome_response.decode())
 
+    data = json.loads(welcome_response.split(" ", 1)[1])
+    id = data["id"]
+    position = data["pos"]
+    map = data["map"]
+    walls = data["walls"]
+
+    print("ID", id)
+    print("Position", position)
+    print("Map", map)
+    print("Walls", walls)
 
     # In a loop, read data from the socket and process messages.
     while True:
-        game_state = sock.recv(1024)
-        command = decide(game_state.decode())
-        if command:
-            sock.sendall((command + "\n").encode())
+        game_state = b''
+        gs_data = ''
+        while b'\n' not in game_state:
+            game_state = game_state + sock.recv(1024)
+        print("Game State: ", game_state)
+
+        gs_data = json.loads(game_state.decode().split(" ", 1)[1])
+        tick = gs_data["tick"]
+        me = gs_data["you"]
+        players = gs_data["players"]
+        resources = gs_data["resources"]
+        projectiles = gs_data["projectiles"]
+
+        print("Tick ", tick)
+        print("Me ", me)
+        print("Players", players)
+        print("Resources", resources)
+        print("Projectiles", projectiles)
+
+
+        #command = decide(game_state.decode())
+        #if command:
+            #sock.sendall((command + "\n").encode())
 
 
     # Remember: TCP is a byte stream. A single recv() call may return
