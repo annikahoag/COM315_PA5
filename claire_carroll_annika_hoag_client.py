@@ -29,11 +29,6 @@ def main():
     map = data["map"]
     walls = data["walls"]
 
-    # print("ID", id)
-    # print("Position", position)
-    # print("Map", map)
-    # print("Walls", walls)
-
     # In a loop, read data from the socket and process messages.
     while True:
 
@@ -42,36 +37,29 @@ def main():
         while b'\n' not in game_state:
             game_state = game_state + sock.recv(1024)
 
-        gs_data = []
+        message = game_state.decode().strip()
 
-        gs_data = json.loads(game_state.decode().split(" ", 1)[1])
+        if message.startswith("GAMESTATE"):
+            gs_data = json.loads(message.split(" ", 1)[1])
 
-        tick = gs_data["tick"]
-        me = gs_data["you"]
-        players = gs_data["players"]
-        resources = gs_data["resources"]
-        projectiles = gs_data["projectiles"]
+            command = decide(gs_data)
+            if command:
+                sock.sendall((command + "\n").encode())
 
-        command = decide(gs_data)
-        print(command)
-        if command:
-            sock.sendall((command + "\n").encode())
-
-            
-
-
-
-    # Remember: TCP is a byte stream. A single recv() call may return
-    # multiple messages, or only part of one. You need to handle this.
-    #
-    # For each GAMESTATE message, parse the JSON and call:
-    #     command = decide(game_state)
-    #     if command:
-    #         sock.sendall((command + "\n").encode())
-    #
-    # You also need to handle: HIT, DEATH, KILL, RESPAWN, ERROR
-    #
-    # Hint: how do you send commands while also reading from the socket?
+        elif message.startswith("HIT"):
+            print("Hit : ", message)
+        elif message.startswith("DEATH"):
+            print("Died: ", message)
+        elif message.startswith("KILL"):
+            print("Killed: ", message)
+        elif message.startswith("RESPAWN"):
+            print("Respawned: ", message)
+        elif message.startswith("ERROR"):
+            print("ERROR: ", message)
+        elif message.startswith("CHAT"):
+            print("You have a new chat!")
+        else:
+            print("ELSE: ", message)
 
     sock.close()
 
