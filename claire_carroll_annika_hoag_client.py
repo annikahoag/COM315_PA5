@@ -42,9 +42,27 @@ def main():
         if message.startswith("GAMESTATE"):
             gs_data = json.loads(message.split(" ", 1)[1])
 
+            sock.sendall(b"PLAYERS\n")
+
             command = decide(gs_data)
             if command:
                 sock.sendall((command + "\n").encode())
+
+        elif message.startswith("PLAYERS"):
+        #Cyberattack meant to remove fog of war
+        #We now have knowledge of all known players and could potentially add to stragety
+        #Possibly further use cases include: Going after leaderboard "ruler", going after players with less hp,
+        #and avoid players nearby
+            try:
+                all_players = json.loads(message.split(" ", 1)[1])
+                print("KNOWN PLAYERS:", len(all_players), "players", all_players)
+                if isinstance(gs_data, dict):
+                    gs_data["players"] = [p for p in all_players if p.get("id") != id]
+                    command = decide(gs_data)
+                    if command:
+                        sock.sendall((command + "\n").encode())
+            except (json.JSONDecodeError, IndexError):
+                pass
 
         elif message.startswith("HIT"):
             print("Hit : ", message)
@@ -58,6 +76,12 @@ def main():
             print("ERROR: ", message)
         elif message.startswith("CHAT"):
             print("You have a new chat!")
+        elif message.startswith("HP"):
+            print("HP: ", message)
+        elif message.startswith("HEALTH"):
+            print("Health: ", message)
+        elif message.startswith("SCORE"):
+            print("Score: ", message)
         else:
             print("ELSE: ", message)
 
